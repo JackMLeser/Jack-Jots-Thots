@@ -1,0 +1,219 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jack Jots Thots</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(to right, #36D1DC, #5B86E5);
+            color: #333;
+        }
+
+        header {
+            background-color: #282c34;
+            color: white;
+            padding: 1em;
+            text-align: center;
+        }
+
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 10px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            margin-top: 20px;
+        }
+
+        label {
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input, textarea {
+            margin-bottom: 16px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        button {
+            padding: 12px;
+            background-color: #61dafb;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+            button:hover {
+                background-color: #4fa3d1;
+            }
+
+        #posts {
+            margin-top: 20px;
+        }
+
+        .post {
+            background-color: #f7f7f7;
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+            .post h3 {
+                color: #333;
+                .post
+
+        {
+            /* Add position:relative to enable positioning of the delete icon */
+            position: relative;
+        }
+
+        .delete-icon {
+            /* Position the delete icon in the top right corner */
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        .comment {
+            position: relative;
+        }
+
+        .attachment-icon {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #888;
+            cursor: pointer;
+        }
+
+        /* Hide the file input */
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>My Unique Blog</h1>
+    </header>
+
+    <main>
+        <h2>Latest Posts</h2>
+        <div id="posts"></div>
+
+        <h2>Add a New Post</h2>
+        <form id="blogForm">
+            <label for="title">Title:</label>
+            <input type="text" id="title" required>
+
+            <label for="content">Content:</label>
+            <textarea id="content" rows="4" required></textarea>
+
+            <button type="button" onclick="addPost()">Add Post</button>
+        </form>
+    </main>
+
+    <script>// Load posts from localStorage on page load
+        window.addEventListener('load', function () {
+            const savedPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+            const postsContainer = document.getElementById('posts');
+
+            savedPosts.forEach(post => {
+                const postElement = createPostElement(post.title, post.content);
+                postsContainer.appendChild(postElement);
+            });
+        });
+
+        function addPost() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            if (title && content) {
+                const postContainer = document.getElementById('posts');
+                const postElement = createPostElement(title, content);
+                postContainer.appendChild(postElement);
+
+                // Save posts to localStorage
+                savePostsToLocalStorage();
+
+                // Clear the form
+                document.getElementById('title').value = '';
+                document.getElementById('content').value = '';
+            } else {
+                alert('Please fill in both title and content.');
+            }
+        }
+
+        function createPostElement(title, content) {
+            const postElement = document.createElement('div');
+            postElement.className = 'post';
+            postElement.innerHTML = `
+                    <span class="delete-icon" onclick="deletePost(this)">🗑️</span>
+                    <h3>${title}</h3>
+                    <p>${content}</p>
+                    <div class="comments">
+                        <div class="comment">
+                            <span class="attachment-icon" onclick="openFileInput(this)">📎</span>
+                            <p>Sample Comment</p>
+                            <input type="file" id="fileInput" onchange="handleFileSelect(this)">
+                        </div>
+                    </div>
+                `;
+            return postElement;
+        }
+
+        function deletePost(deleteIcon) {
+            const postElement = deleteIcon.parentElement;
+            postElement.remove();
+
+            // Save posts to localStorage after deletion
+            savePostsToLocalStorage();
+        }
+
+        function openFileInput(attachmentIcon) {
+            const fileInput = attachmentIcon.nextElementSibling;
+            fileInput.click();
+        }
+
+        function handleFileSelect(fileInput) {
+            const selectedFile = fileInput.files[0];
+            if (selectedFile) {
+                const commentContainer = fileInput.parentElement;
+                const imageUrl = URL.createObjectURL(selectedFile);
+
+                // Display the selected image
+                const imageElement = document.createElement('img');
+                imageElement.src = imageUrl;
+                commentContainer.appendChild(imageElement);
+            }
+        }
+
+        function savePostsToLocalStorage() {
+            const postElements = document.querySelectorAll('.post');
+            const posts = [];
+
+            postElements.forEach(postElement => {
+                const title = postElement.querySelector('h3').innerText;
+                const content = postElement.querySelector('p').innerText;
+                posts.push({ title, content });
+            });
+
+            localStorage.setItem('blogPosts', JSON.stringify(posts));
+        }</script>
+</body>
+</html>
